@@ -76,8 +76,15 @@
       this.monster = null;
       this.hero = null
       this.monsterList = [
-      // {name: '슬라임', hp: 25, att: 10, xp: 10},
-      // {name: '스켈레톤', hp: 50, att: 15, xp: 20},
+      {name: '달팽이', hp: 35, att: 7, xp: 5},
+      {name: '슬라임', hp: 45, att: 10, xp: 7},
+      {name: '버섯', hp: 55, att: 13, xp: 9},
+      {name: '고스트', hp: 65, att: 15, xp: 11},
+      {name: '엘프', hp: 75, att: 17, xp: 13},
+      {name: '스켈레톤', hp: 85, att: 19, xp: 15},
+      {name: '복어', hp: 95, att: 25, xp: 25},
+      {name: '샤크', hp: 105, att: 28, xp: 30},
+      {name: '발록', hp: 130, att: 21, xp: 35},
       {name: '마왕', hp: 150, att: 35, xp: 50,},
       ]
       this.start(name);
@@ -118,7 +125,10 @@
     onGameMenuInput = (event) => {
       event.preventDefault();
       const input = event.target['menu-input'].value;
+      let time = 0;
+
       if(input === '1') { // 모험
+        this.hero.healCount = 0;
         this.changeScreen('battle') 
         const randomIndex = Math.floor(Math.random() * this.monsterList.length);
         const randomMonster = this.monsterList[randomIndex];
@@ -137,18 +147,18 @@
           this.showMessage("체력이 모두 회복 되었습니다.");
           return;
         }
-        this.showMessage("회복을 시작 합니다.");
-        const timeout = setInterval(() => {
+        this.showMessage("회복을 시작 합니다. / 30초당 10 회복");
+        const restTimeout = setInterval(() => {
           if(10 > hero.maxHp - hero.hp) {
             hero.hp = hero.maxHp;
             this.updateHeroStat();
-            clearInterval(timeout);
+            clearInterval(restTimeout);
             this.showMessage("회복이 모두 끝났습니다.");
             return;
           } 
             hero.restHeal();
             this.updateHeroStat();
-        }, "1000");
+        }, 30000);
 
       } else if (input === '3') { // 종료
         this.quit();
@@ -200,6 +210,11 @@
         monster.attack(hero);
         this.updateHeroStat();
         this.showMessage(`${monster.name}에게 ${monster.att}의 데미지를 받았다!!!`);
+        if(hero.hp <= 0) {
+          this.showMessage(`${hero.lev} 레벨에서 전사 ㅠㅠ, 새 주인공을 생성해 주세요!`);
+          this.quit();
+          return;
+        }
         this.changeScreen('game');
       }
     }
@@ -219,7 +234,7 @@
       $heroName.textContent = hero.name;
       $heroLavel.textContent = `${hero.lev}Lev`;
       $heroHp.textContent = `HP: ${hero.hp}/${hero.maxHp}`;
-      $heroXp.textContent = `XP: ${hero.xp}/${15 * hero.lev}`;
+      $heroXp.textContent = `XP: ${hero.xp}/${25 * hero.lev}`;
       $heroAtt.textContent = `ATT: ${hero.att}`;
     }
 
@@ -296,16 +311,18 @@
           return;
         }
         this.hp = this.maxHp;
+        return;
       } else {
         this.hp += 20;
         this.hp -= monster.att;
+        return;
       }
     } 
 
     getXp(xp) {
       this.xp += xp;
-      if(this.xp >= this.lev * 15) { // 경험치 다 채웠을 때
-        this.xp -= this.lev * 15;
+      if(this.xp >= this.lev * 25) { // 경험치 다 채웠을 때
+        this.xp -= this.lev * 25;
         this.lev += 1;
         this.maxHp += 5;
         this.att += 5;
